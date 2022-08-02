@@ -11,111 +11,148 @@ FILE* compress(char* code_file)
 		exit(1);
 	}
 	int* freq_arr = freq_count(code_file);
-	Min_heap_node** huffman_tree = build_huffman_tree(freq_arr);
+	Min_heap* huffman_tree = build_huffman_tree(freq_arr);
 	char** huffman_array = huffman_code(huffman_tree);
-	char* file_name=NULL;
-	file_name=_strdup(code_file);
+	char* file_name = NULL;
+	_strdup(file_name, code_file);
 	strcat(file_name, ".bin");
 	FILE* compressed_file = fopen(file_name, "wb");
 	if (compressed_file == NULL)
 		exit(1);
 	//todo...
 	replace(sourse_file, compressed_file, huffman_array);
-	return compressed_file;
 }
 
-FILE* replace(FILE* sourse_file, FILE* compressed_file, char** huffman_array)
+FILE* replace(FILE* sourse_file, FILE* compressed_file, int* huffman_array)
 {
 
-	int ch, temp = 0, i = 0, index_code = 0;
+	int ch, temp, i = 0, index_code = 0;
 	char char_code;
 	char* code;
 	ch = fgetc(sourse_file);
 	do
 	{
-		//01110101 00101010 11111100 011
-		//temp:0 64 96 112 112 116 116 117
-		//011 | 110
-		//1010100101010111 | 1110101010010101
-		//11100011 | 11000111
 		code = huffman_array[ch];
 		while (index_code < strlen(code) && i < 8)
 		{
-			temp += (code[index_code] - 48) * pow(2, 7 - i);
+			temp += code[index_code] * pow(2, index_code % 8);
 			i++;
 			index_code++;
 		}
-		//todo 2 conditions
-		if (i < 8) {
-			//finish code
-			ch = fgetc(sourse_file);
-			index_code = 0;
-		}
-		else if (index_code < strlen(code)) {
+
+		if (index_code <= strlen(code)) {
 			//finish temp and not finish code
 			char_code = temp;
 			fwrite(&char_code, 1, 1, compressed_file);
 			i = 0;
 			temp = 0;
 		}
-		else {
-			//finish code and temp
+
+		if (i <= 8) {
+			//finish code
 			ch = fgetc(sourse_file);
 			index_code = 0;
-			char_code = temp;
-			printf("%d   ", temp);
-			fwrite(&char_code, 1, 1, compressed_file);
-			i = 0;
-			temp = 0;
 		}
-
 	} while (ch != EOF);
-	temp = temp >> (8 - i);
-	char_code = temp;
-	printf("%d   ", temp);
-	fwrite(&char_code, 1, 1, compressed_file);
-	return compressed_file;
-}
 
+}
 
 int* freq_count(FILE* code_file)
 {
-	return nullptr;
+	int* arr_freq = NULL;
+	arr_freq = (int*)calloc(255, sizeof(int));
+	int ch = fgetc(code_file);
+	while (ch != EOF)
+	{
+		ch = fgetc(code_file);
+		arr_freq[ch]++;
+	}
+	return arr_freq;
 }
 
-Min_heap_node** build_huffman_tree(int* freq_arr)
+Min_heap* build_huffman_tree(int* freq_arr)
 {
+	Min_heap* min_heap = build_min_heap(freq_arr);
+	while (is_one_leaf(min_heap))
+	{
+		Min_heap_node* right = extractmin(min_heap);
+		Min_heap_node* left = extractmin(min_heap);
+		Min_heap_node* new_internal_node = create_new_node(right->freq + left->freq, '$');
+		new_internal_node->right = right;
+		new_internal_node->left = left;
+		insert_min_heap(min_heap, new_internal_node);
+	}
+	return min_heap;
 }
 
 Min_heap_node* create_new_node(int freq, char c)
 {
+	Min_heap_node* node = NULL;
+	node = (Min_heap_node*)malloc(sizeof(Min_heap_node));
+	node->c = c;
+	node->freq = freq;
+	return node;
+}
+
+int is_one_leaf(Min_heap* heap)
+{
+	return heap->size > 1;
+}
+//
+//void min_heapify(Min_heap* h, int index)
+//{
+//	int temp;
+//	int parent_node = (index - 1) / 2;
+//
+//	if (h->arr[parent_node]->freq > h->arr[index]->freq) {
+//		//swap and recursive call
+//		temp = h->arr[parent_node];
+//		h->arr[parent_node] = h->arr[index];
+//		h->arr[index] = temp;
+//		min_heapify(h, parent_node);
+//	}
+//}
+void min_heapify(Min_heap* h, int index)
+{
+	int left_index = index * 2 + 1;
+	int right_index = index * 2 + 2;
+	int smallest = index;
+	if (left_index < h->size && h->arr[left_index]->freq < h->arr[index]->freq)
+		smallest = left_index;
+	if (right_index < h->size && h->arr[right_index]->freq < h->arr[smallest]->freq)
+		smallest = right_index;
+	if (smallest != index)
+	{
+		swap(&h->arr[index], &h->arr[smallest]);
+		min_heapify(h, smallest);
+	}
+}
+
+void insert_min_heap(Min_heap* heap, Min_heap_node* node)
+{
+	//size++
+}
+
+Min_heap_node* extractmin(Min_heap* heap)
+{
+	//size--;
 	return nullptr;
 }
 
-int is_one_leaf(Min_heap_node* heap)
-{
-	return 0;
-}
-
-void insert_min_heap(Min_heap_node** heap, Min_heap_node* node)
-{
-}
-
-Min_heap_node* extractmin(Min_heap_node** heap)
+char** huffman_code(Min_heap* root)
 {
 	return nullptr;
 }
 
-char** huffman_code(Min_heap_node** root)
+Min_heap* build_min_heap(int* freq_arr)
 {
-	return nullptr;
-}
 
-Min_heap_node** build_min_heap(int* freq_arr, char* char_arr)
-{
 	return nullptr;
 }
 
 void swap(Min_heap_node* a, Min_heap_node* b)
 {
+	Min_heap_node temp = *a;
+	*a = *b;
+	*b = temp;
 }
