@@ -14,48 +14,69 @@ FILE* compress(char* code_file)
 	Min_heap_node** huffman_tree = build_huffman_tree(freq_arr);
 	char** huffman_array = huffman_code(huffman_tree);
 	char* file_name=NULL;
-	_strdup(file_name, code_file);
+	file_name=_strdup(code_file);
 	strcat(file_name, ".bin");
 	FILE* compressed_file = fopen(file_name, "wb");
 	if (compressed_file == NULL)
 		exit(1);
 	//todo...
 	replace(sourse_file, compressed_file, huffman_array);
+	return compressed_file;
 }
 
-FILE* replace(FILE* sourse_file,FILE* compressed_file,int * huffman_array)
+FILE* replace(FILE* sourse_file, FILE* compressed_file, char** huffman_array)
 {
 
-	int ch, temp, i = 0, index_code = 0;
+	int ch, temp = 0, i = 0, index_code = 0;
 	char char_code;
 	char* code;
 	ch = fgetc(sourse_file);
 	do
 	{
+		//01110101 00101010 11111100 011
+		//temp:0 64 96 112 112 116 116 117
+		//011 | 110
+		//1010100101010111 | 1110101010010101
+		//11100011 | 11000111
 		code = huffman_array[ch];
 		while (index_code < strlen(code) && i < 8)
 		{
-			temp += code[index_code] * pow(2, index_code % 8);
+			temp += (code[index_code] - 48) * pow(2, 7 - i);
 			i++;
 			index_code++;
 		}
-
-		if (index_code <= strlen(code)) {
+		//todo 2 conditions
+		if (i < 8) {
+			//finish code
+			ch = fgetc(sourse_file);
+			index_code = 0;
+		}
+		else if (index_code < strlen(code)) {
 			//finish temp and not finish code
 			char_code = temp;
 			fwrite(&char_code, 1, 1, compressed_file);
 			i = 0;
 			temp = 0;
 		}
-
-		if (i <= 8) {
-			//finish code
+		else {
+			//finish code and temp
 			ch = fgetc(sourse_file);
 			index_code = 0;
+			char_code = temp;
+			printf("%d   ", temp);
+			fwrite(&char_code, 1, 1, compressed_file);
+			i = 0;
+			temp = 0;
 		}
-	} while (ch != EOF);
 
+	} while (ch != EOF);
+	temp = temp >> (8 - i);
+	char_code = temp;
+	printf("%d   ", temp);
+	fwrite(&char_code, 1, 1, compressed_file);
+	return compressed_file;
 }
+
 
 int* freq_count(FILE* code_file)
 {
