@@ -5,12 +5,12 @@
 #define nullptr NULL
 #define _CRT_SECURE_NO_WARNINGS
 #define LOG_FILE "history.log"
-void s_init(S_int* S)
+void stack_int_init(S_int* S)
 {
 	S->arr = (int*)malloc(sizeof(int));
 	S->size = 0;
 }
-void push_int(S_int* S, int num)
+void stack_push_int(S_int* S, int num)
 {
 	S->size ++;
 	S->arr = (int*)realloc(S->arr,sizeof(int)*S->size);
@@ -23,7 +23,7 @@ int pop_int(S_int* S) {
 int isEmpty_int(S_int* S) {
 
 }
-void push(SNode** top_ref, Min_heap_node* t)
+void stack_node_push(SNode** top_ref, Min_heap_node* t)
 {
 
 	 SNode* new_node =
@@ -51,7 +51,7 @@ Min_heap_node* pop(SNode** top_ref)
 	struct SNode* top;
 
 	/*If sNode is empty then error */
-	if (isEmpty(*top_ref))
+	if (stack_node_is_empty(*top_ref))
 	{
 		printf("Stack Underflow \n");
 		getchar();
@@ -66,20 +66,22 @@ Min_heap_node* pop(SNode** top_ref)
 		return res;
 	}
 }
-int isEmpty(SNode* top)
+int stack_node_is_empty(SNode* top)
 {
 	return (top == NULL) ? 1 : 0;
 
 }
-FILE* compress(char* code_file)
+FILE* compress_main(char* code_file)
 {
 	FILE* sourse_file = fopen(code_file, "r");
 	if (sourse_file == NULL) {
 		//to do ...
 		exit(1);
 	}
-	int* freq_arr = freq_count(code_file);
+	int* freq_arr = compress_build_freq_array(code_file);
+
 	Min_heap* huffman_tree = build_huffman_tree(freq_arr);
+
 	char** huffman_array = huffman_code(huffman_tree);
 	char* file_name = NULL;
 	_strdup(file_name, code_file);
@@ -215,30 +217,32 @@ char** huffman_code(Min_heap* root)
 	 Min_heap_node* current = root->arr[0];
 	 SNode* node_stack = NULL; 
 	 S_int* code_stack = NULL; 
-	 s_init(code_stack);
+	 stack_int_init(code_stack);
 	int done = 0;
 
 	while (!done)
 	{
-		if (!(current->left || current->right)) {
+		if (!current->left && !current->right) {
 			// output the code stack to huffman array
 		}
 		if (current != NULL)
 		{
-			push(&node_stack, current);
-			push_int(code_stack, 0);
+			stack_node_push(&node_stack, current);
+			stack_push_int(code_stack, 0);
 			current = current->left;
 		}
 		else
 		{
-			if (!isEmpty(node_stack))
+			if (!stack_node_is_empty(node_stack))
 			{
 				current = pop(&node_stack);
 				pop_int(code_stack);
 				current = current->right;
 			}
 			else
+			{
 				done = 1;
+			}
 		}
 	} 
 }
