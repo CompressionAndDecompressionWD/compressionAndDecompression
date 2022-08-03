@@ -1,8 +1,10 @@
 #include "compress_and_decompress.h"
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #define nullptr NULL
 #define _CRT_SECURE_NO_WARNINGS
+#define LOG_FILE "history.log"
 FILE* compress(char* code_file)
 {
 	FILE* sourse_file = fopen(code_file, "r");
@@ -98,20 +100,6 @@ int is_one_leaf(Min_heap* heap)
 {
 	return heap->size > 1;
 }
-//
-//void min_heapify(Min_heap* h, int index)
-//{
-//	int temp;
-//	int parent_node = (index - 1) / 2;
-//
-//	if (h->arr[parent_node]->freq > h->arr[index]->freq) {
-//		//swap and recursive call
-//		temp = h->arr[parent_node];
-//		h->arr[parent_node] = h->arr[index];
-//		h->arr[index] = temp;
-//		min_heapify(h, parent_node);
-//	}
-//}
 void min_heapify(Min_heap* h, int index)
 {
 	int left_index = index * 2 + 1;
@@ -130,7 +118,10 @@ void min_heapify(Min_heap* h, int index)
 
 void insert_min_heap(Min_heap* heap, Min_heap_node* node)
 {
-	//size++
+	heap->size++;
+	heap->arr = (Min_heap_node*)realloc(heap->arr, sizeof(Min_heap_node)*heap->size);
+	heap->arr[heap->size - 1] = node;
+	min_heapify(heap, 0);
 }
 
 Min_heap_node* extractmin(Min_heap* heap)
@@ -159,4 +150,14 @@ void swap(Min_heap_node* a, Min_heap_node* b)
 	Min_heap_node temp = *a;
 	*a = *b;
 	*b = temp;
+}
+
+void keep_history(char* function, char* data)
+{
+	FILE* log_file = fopen(LOG_FILE, "w");
+	
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+	//fputs( tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+	
 }
