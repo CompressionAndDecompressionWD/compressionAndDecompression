@@ -1,6 +1,7 @@
 #include "compress_and_decompress.h"
 #include <string.h>
 #include <math.h>
+#include <dos.h>
 #include <time.h>
 #define nullptr NULL
 #define _CRT_SECURE_NO_WARNINGS
@@ -119,7 +120,11 @@ void min_heapify(Min_heap* h, int index)
 void insert_min_heap(Min_heap* heap, Min_heap_node* node)
 {
 	heap->size++;
-	heap->arr = (Min_heap_node*)realloc(heap->arr, sizeof(Min_heap_node)*heap->size);
+	heap->arr = (Min_heap_node**)realloc(heap->arr, sizeof(Min_heap_node*)*heap->size);
+	if (heap->arr == NULL) {
+		exit(1);
+		//to do
+	}
 	heap->arr[heap->size - 1] = node;
 	min_heapify(heap, 0);
 }
@@ -154,10 +159,19 @@ void swap(Min_heap_node* a, Min_heap_node* b)
 
 void keep_history(char* function, char* data)
 {
+	time_t t;   // not a primitive datatype
+	time(&t);
+	char* date_time = ctime(&t);
 	FILE* log_file = fopen(LOG_FILE, "w");
-	
-	time_t t = time(NULL);
-	struct tm tm = *localtime(&t);
-	//fputs( tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
-	
+	char* history = NULL;
+	history = _strdup(date_time);
+	history = (char*)realloc(history, sizeof(history) + sizeof(function) + sizeof(data) + 23);
+	strcat(history, " : ");
+	strcat(history, " function: ");
+	strcat(history, function);;
+	strcat(history, " state: ");
+	strcat(history, data);
+	strcat(history, "\0");
+	fputs( history, log_file);
+	fclose(log_file);
 }
