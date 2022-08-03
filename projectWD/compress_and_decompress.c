@@ -136,7 +136,12 @@ void insert_min_heap(Min_heap* heap, Min_heap_node* node)
 Min_heap_node* extractmin(Min_heap* heap)
 {
 	//size--;
-	return nullptr;
+	Min_heap_node* node = heap->arr[0];
+	heap->arr[0] = heap->arr[heap->size-1];
+	free(heap->arr[heap->size-1]);
+	min_heapify(heap, 0);
+	heap->size--;
+	return node;
 }
 
 char** huffman_code(Min_heap* root)
