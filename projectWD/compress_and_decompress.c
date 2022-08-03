@@ -100,20 +100,6 @@ int is_one_leaf(Min_heap* heap)
 {
 	return heap->size > 1;
 }
-//
-//void min_heapify(Min_heap* h, int index)
-//{
-//	int temp;
-//	int parent_node = (index - 1) / 2;
-//
-//	if (h->arr[parent_node]->freq > h->arr[index]->freq) {
-//		//swap and recursive call
-//		temp = h->arr[parent_node];
-//		h->arr[parent_node] = h->arr[index];
-//		h->arr[index] = temp;
-//		min_heapify(h, parent_node);
-//	}
-//}
 void min_heapify(Min_heap* h, int index)
 {
 	int left_index = index * 2 + 1;
@@ -132,7 +118,10 @@ void min_heapify(Min_heap* h, int index)
 
 void insert_min_heap(Min_heap* heap, Min_heap_node* node)
 {
-	//size++
+	heap->size++;
+	heap->arr = (Min_heap_node*)realloc(heap->arr, sizeof(Min_heap_node)*heap->size);
+	heap->arr[heap->size - 1] = node;
+	min_heapify(heap, 0);
 }
 
 Min_heap_node* extractmin(Min_heap* heap)
