@@ -23,9 +23,10 @@ FILE* compress(char* code_file)
 		exit(1);
 	//todo...
 	replace(sourse_file, compressed_file, huffman_array);
+	return compressed_file;
 }
 
-FILE* replace(FILE* sourse_file, FILE* compressed_file, int* huffman_array)
+FILE* replace(FILE* sourse_file, FILE* compressed_file, char** huffman_array)
 {
 
 	int ch, temp, i = 0, index_code = 0;
@@ -136,13 +137,32 @@ Min_heap_node* extractmin(Min_heap* heap)
 
 char** huffman_code(Min_heap* root)
 {
-	return nullptr;
+
 }
 
 Min_heap* build_min_heap(int* freq_arr)
 {
+	Min_heap* min_heap;
+	init_min_heap(min_heap);
+	for (int i = 0; i < sizeof(freq_arr)/sizeof(int); i++)
+	{
+		if (freq_arr[i] != 0) {
+			min_heap->arr = (Min_heap_node**)realloc(min_heap->arr, sizeof(Min_heap_node*) * min_heap->size);
+			min_heap->arr[min_heap->size++]= create_new_node(freq_arr[i], (char)i);
+		}
+	}
+	for (int i = min_heap->size; i > min_heap->size/2; i++)
+	{
+		min_heapify(min_heap, i);
+	}
+	return min_heap;
+}
 
-	return nullptr;
+void init_min_heap(Min_heap* min_heap)
+{
+	min_heap->size = 0;
+	min_heap->capacity = 255;
+    min_heap->arr = (Min_heap_node**)malloc(sizeof(Min_heap_node*));
 }
 
 void swap(Min_heap_node* a, Min_heap_node* b)
