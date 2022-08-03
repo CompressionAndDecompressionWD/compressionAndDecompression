@@ -2,10 +2,75 @@
 #include <string.h>
 #include <math.h>
 #include <dos.h>
-#include <time.h>
 #define nullptr NULL
 #define _CRT_SECURE_NO_WARNINGS
 #define LOG_FILE "history.log"
+void s_init(S_int* S)
+{
+	S->arr = (int*)malloc(sizeof(int));
+	S->size = 0;
+}
+void push_int(S_int* S, int num)
+{
+	S->size ++;
+	S->arr = (int*)realloc(S->arr,sizeof(int)*S->size);
+	S->arr[S->size - 1] = num;
+	
+}
+int pop_int(S_int* S) {
+
+}
+int isEmpty_int(S_int* S) {
+
+}
+void push(SNode** top_ref, Min_heap_node* t)
+{
+
+	 SNode* new_node =
+		( SNode*)malloc(sizeof( SNode));
+
+	if (new_node == NULL)
+	{
+		printf("Stack Overflow \n");
+		getchar();
+		exit(0);
+	}
+
+	/* put in the data  */
+	new_node->t = t;
+
+	/* link the old list off the new tNode */
+	new_node->next = (*top_ref);
+
+	/* move the head to point to the new tNode */
+	(*top_ref) = new_node;
+}
+Min_heap_node* pop(SNode** top_ref)
+{
+	struct Min_heap_node* res;
+	struct SNode* top;
+
+	/*If sNode is empty then error */
+	if (isEmpty(*top_ref))
+	{
+		printf("Stack Underflow \n");
+		getchar();
+		exit(0);
+	}
+	else
+	{
+		top = *top_ref;
+		res = top->t;
+		*top_ref = top->next;
+		free(top);
+		return res;
+	}
+}
+int isEmpty(SNode* top)
+{
+	return (top == NULL) ? 1 : 0;
+
+}
 FILE* compress(char* code_file)
 {
 	FILE* sourse_file = fopen(code_file, "r");
@@ -142,8 +207,42 @@ Min_heap_node* extractmin(Min_heap* heap)
 
 char** huffman_code(Min_heap* root)
 {
+	char** huffman_codes = NULL;
+	huffman_codes = (char**)malloc(sizeof(char*));
+	//if the tree has 1 node
+	huffman_codes[0] = "0";
 
+	 Min_heap_node* current = root->arr[0];
+	 SNode* node_stack = NULL; 
+	 S_int* code_stack = NULL; 
+	 s_init(code_stack);
+	int done = 0;
+
+	while (!done)
+	{
+		if (!(current->left || current->right)) {
+			// output the code stack to huffman array
+		}
+		if (current != NULL)
+		{
+			push(&node_stack, current);
+			push_int(code_stack, 0);
+			current = current->left;
+		}
+		else
+		{
+			if (!isEmpty(node_stack))
+			{
+				current = pop(&node_stack);
+				pop_int(code_stack);
+				current = current->right;
+			}
+			else
+				done = 1;
+		}
+	} 
 }
+
 
 Min_heap* build_min_heap(int* freq_arr)
 {

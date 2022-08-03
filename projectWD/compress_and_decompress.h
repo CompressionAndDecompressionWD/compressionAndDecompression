@@ -15,9 +15,29 @@ typedef struct min_heap {
 	unsigned int capacity;
 	Min_heap_node** arr;
 }Min_heap;
+// stack node
+typedef struct SNode
+{
+	Min_heap_node* t;
+	struct SNode* next;
+}SNode;
+
+void push( SNode**,  Min_heap_node* );
+ Min_heap_node* pop( SNode** );
+int isEmpty( SNode* );
+//stack int
+typedef struct s_int
+{
+	int* arr;
+	int size;
+}S_int;
+void s_init(S_int*);
+void push_int(S_int*,int num);
+int pop_int(S_int*);
+int isEmpty_int(S_int*);
 //compression
 FILE* compress(char*);
-FILE* replace(FILE*, FILE*, int*);
+FILE* replace(FILE*, FILE*, char**);
 int* freq_count(FILE*);
 Min_heap* build_huffman_tree(int*);
 Min_heap_node* create_new_node(int, char);
