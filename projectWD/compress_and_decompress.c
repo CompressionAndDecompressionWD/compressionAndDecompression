@@ -135,7 +135,6 @@ void insert_min_heap(Min_heap* heap, Min_heap_node* node)
 
 Min_heap_node* extractmin(Min_heap* heap)
 {
-	//size--;
 	Min_heap_node* node = heap->arr[0];
 	heap->arr[0] = heap->arr[heap->size-1];
 	free(heap->arr[heap->size-1]);
