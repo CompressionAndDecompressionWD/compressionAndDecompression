@@ -1,8 +1,10 @@
 #include "compress_and_decompress.h"
 #include <string.h>
 #include <math.h>
+#include <time.h>
 #define nullptr NULL
 #define _CRT_SECURE_NO_WARNINGS
+#define LOG_FILE "history.log"
 FILE* compress(char* code_file)
 {
 	FILE* sourse_file = fopen(code_file, "r");
@@ -155,4 +157,14 @@ void swap(Min_heap_node* a, Min_heap_node* b)
 	Min_heap_node temp = *a;
 	*a = *b;
 	*b = temp;
+}
+
+void keep_history(char* function, char* data)
+{
+	FILE* log_file = fopen(LOG_FILE, "w");
+	
+	time_t t = time(NULL);
+	struct tm tm = *localtime(&t);
+	//fputs( tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday, tm.tm_hour, tm.tm_min, tm.tm_sec);
+	
 }

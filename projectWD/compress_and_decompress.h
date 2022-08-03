@@ -28,5 +28,5 @@ Min_heap_node* extractmin(Min_heap*);
 char** huffman_code(Min_heap*);
 Min_heap* build_min_heap(int*);
 void swap(Min_heap_node*, Min_heap_node*);
-
+void keep_history(char* function,char* data);
 #endif
