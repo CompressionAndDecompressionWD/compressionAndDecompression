@@ -1,5 +1,4 @@
 #define _CRT_SECURE_NO_WARNINGS
-
 #ifndef compress_and_decompress
 #define compress_and_decompress
 #include <stdio.h>
@@ -21,32 +20,34 @@ typedef struct SNode
 	Min_heap_node* t;
 	struct SNode* next;
 }SNode;
-void stack_node_push( SNode**,  Min_heap_node* );
-Min_heap_node* pop( SNode** );
-int stack_node_is_empty( SNode* );
+void stack_node_push(SNode**, Min_heap_node*);
+Min_heap_node* pop(SNode**);
+int stack_node_is_empty(SNode*);
 //stack int
 typedef struct s_int
 {
 	int* arr;
 	int size;
 }S_int;
-void s_init(S_int*);
-void push_int(S_int*,int num);
-int pop_int(S_int*);
-int isEmpty_int(S_int*);
+void stack_int_init(S_int*);
+void stack_int_push(S_int*, int num);
+int stack_int_pop(S_int*);
+int stack_int_isEmpty(S_int*);
 //compression
-FILE* compress(char*);
-FILE* replace(FILE*, FILE*, char**);
-int* freq_count(FILE*);
-Min_heap* build_huffman_tree(int*);
-Min_heap_node* create_new_node(int, char);
-int is_one_leaf(Min_heap*);
-void min_heapify(Min_heap*);
-void insert_min_heap(Min_heap*, Min_heap_node*);
-Min_heap_node* extractmin(Min_heap*);
-char** huffman_code(Min_heap*);
-Min_heap* build_min_heap(int*);
-Min_heap* init_min_heap(Min_heap*);
-void swap(Min_heap_node*, Min_heap_node*);
-void keep_history(char* function,char* data);
+FILE* compress_main(char*);
+FILE* compress_replace_chars_to_huffman_codes_in_file(FILE*, FILE*, int*);
+int* compress_build_freq_array(FILE*);
+Min_heap* compress_build_huffman_tree(int*);
+Min_heap_node* compress_create_new_min_heap_node(int, char);
+int compress_heap_is_one_leaf(Min_heap*);
+void compress_min_heapify(Min_heap*);
+void compress_min_heap_insert(Min_heap*, Min_heap_node*);
+Min_heap_node* compress_min_heap_extractmin(Min_heap*);
+int* compress_build_huffman_codes_dictionary(Min_heap*);
+int compress_build_code_from_stack(S_int*);
+Min_heap* compress_build_min_heap(int*);
+Min_heap* compress_init_min_heap(Min_heap*);
+void compress_heap_node_swap(Min_heap_node*, Min_heap_node*);
+//void keep_history(char* function,char* data);
 #endif
+
