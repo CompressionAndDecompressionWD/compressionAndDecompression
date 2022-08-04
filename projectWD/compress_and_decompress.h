@@ -29,6 +29,13 @@ typedef struct s_int
 	int* arr;
 	int size;
 }S_int;
+typedef struct huffman_code {
+	int* code;// array to keep int of code
+	// maximum 192/sizeof(int)+sizeof(int)192%sizeof(int)
+	//for ex:
+	// 192/64->2+1->3 numbers to keep code of length 192
+	int length;
+}Huffman_code;
 void stack_int_init(S_int*);
 void stack_int_push(S_int*,int num);
 int stack_int_pop(S_int*);

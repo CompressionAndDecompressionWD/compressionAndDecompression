@@ -74,7 +74,7 @@ FILE* compress_main(char* code_file)
 	}
 	int* freq_arr = compress_build_freq_array(sourse_file);
 	Min_heap* huffman_tree = compress_build_huffman_tree(freq_arr);
-	int* huffman_dictionary_char_codes = compress_build_huffman_codes_dictionary(huffman_tree);
+	Huffman_code* huffman_dictionary_char_codes = compress_build_huffman_codes_dictionary(huffman_tree);
 	char* file_name = NULL;
 	_strdup(file_name, code_file);
 	strcat(file_name, ".bin");
@@ -85,34 +85,92 @@ FILE* compress_main(char* code_file)
 	compress_replace_chars_to_huffman_codes_in_file(sourse_file, compressed_file, huffman_dictionary_char_codes);
 	return compressed_file;
 }
-FILE* compress_replace_chars_to_huffman_codes_in_file(FILE* sourse_file, FILE* compressed_file, int* huffman_array)
+FILE* compress_replace_chars_to_huffman_codes_in_file(FILE* sourse_file, FILE* compressed_file, Huffman_code* huffman_codes_dictionary)
 {
-	int ch, temp, i = 0, index_code = 0;
-	char char_code;
-	char* code;
-	ch = fgetc(sourse_file);
+	// code=int number
+	Huffman_code code;
+	int ch = NULL, temp=0,count = sizeof(int);
 	do
 	{
-		code = huffman_array[ch];
-		while (index_code < strlen(code) && i < 8)
-		{
-			temp += code[index_code] * pow(2, index_code % 8);
-			i++;
-			index_code++;
-		}
-		if (index_code <= strlen(code)) {
-			//finish temp and not finish code
-			char_code = temp;
-			fwrite(&char_code, 1, 1, compressed_file);
-			i = 0;
-			temp = 0;
-		}
-		if (i <= 8) {
-			//finish code
-			ch = fgetc(sourse_file);
-			index_code = 0;
-		}
-	} while (ch != EOF);
+		ch = fgetc(sourse_file);
+		code = huffman_codes_dictionary[ch];
+		// בהנחה שלא גלש הקוד ליותר מאינט אחד
+		//בהנחה שהתחיל מאפס
+		// temp=0
+		//code= 7 -> .....00000111
+		//length=5
+		temp = code.code[0] << (sizeof(int) - code.length);
+		count -= code.length;//?
+		// count =32-5=27
+		// temp= 00111000000.....
+
+		// בהנחה שהתחיל באמצע
+		//code =25-> ....0000000011001
+		//length=30
+		// 000000...->27 11001
+		// i want 000... ->25 11001
+		// code<<32-30
+		// x-> 00000code
+		// x= code>>sizeof(int)-count
+		// temp=temp||x
+		// temp= 0011100000000000000000000000011 ----- 001(00)
+		// count-=length
+		// count<=0? !
+		// put temp to the file
+		// temp =0
+		// length_new=count*(-1)
+		// length_new=3
+		// count*=-1
+		// code << length-length_new
+		// code =  0010000 .... 000
+		// temp=code = 001000.......
+		// בהנחה שנגמר אחרי
+		// count=3
+		// we have 29 bits
+		// we need 70 bits -> 3 numbers
+		// נתיחס כמו 3 מספרים שונים 
+		// temp 001......
+		// code[0]->32 bits ->19
+		// 19>>3
+		// 19||temp
+		//count-=length // 3-70=-67
+		// count<=0? !
+		// put temp to the file
+		// temp =0
+		// length_new=count*(-1)
+		// length_new=67
+		// count*=-1 // 67
+		// code<<length-length_new 67 =3
+		// (010)1111111111111111 1110000000111111111110 1011
+		// count-=length // 67-70
+		// temp= code>>count
+		// put temp
+		// temp=0
+		// count=35
+		//  נגמר לפני
+		// נגמר בזמן
+		// הקוד באמצע להיכתב
+		
+		// count =32
+		// code-> code=3
+		//code->length=5
+		//int =3
+		// real -> 00011
+		// code->code= .... 00000000 00000011
+		// i want : 00011 ..........
+		// <<32-length
+		//count=32-5=27
+		//Q=11111111111111111100000000111111100000000011111111
+		//dic[Q].code[0]=(int)0000000110100111111100000000011111 (32 bit)
+		//dic[Q].code[1]=(int)0000001101001111111000000000111110 (32 bit)
+		//dic[Q].code[2]=(int)...........101101
+		//dic[Q].length=80
+		// last-> shift (sizeofint- length%sizeofint)
+		//?????????
+		
+	
+	} while (ch!=EOF);
+
 }
 int* compress_build_freq_array(FILE* code_file)
 {
@@ -198,9 +256,10 @@ int compress_build_code_from_stack(S_int* S)
 	}
 	return code;
 }
+//?????????
 int* compress_build_huffman_codes_dictionary(Min_heap* root)
 {
-	int* huffman_codes = NULL, size = 0;
+	Huffman_code* huffman_codes = NULL, size = 0;
 	huffman_codes = (int*)malloc(sizeof(int));
 	//if the tree has 1 node
 	huffman_codes[0] = 0;
