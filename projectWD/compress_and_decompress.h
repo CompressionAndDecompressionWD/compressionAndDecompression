@@ -30,7 +30,7 @@ typedef struct s_int
 	int size;
 }S_int;
 void stack_int_init(S_int*);
-void stack_int_push(S_int*, int num);
+void stack_int_push(S_int*,int num);
 int stack_int_pop(S_int*);
 int stack_int_isEmpty(S_int*);
 //compression

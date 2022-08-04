@@ -152,7 +152,7 @@ int compress_heap_is_one_leaf(Min_heap* heap)
 {
 	return heap->size > 1;
 }
-void compress_min_heapify(Min_heap* h, int index)
+void compress_min_heapify(Min_heap* h,int index)
 {
 	int left_index = index * 2 + 1;
 	int right_index = index * 2 + 2;
