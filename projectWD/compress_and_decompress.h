@@ -21,6 +21,7 @@ typedef struct SNode
 	Min_heap_node* t;
 	struct SNode* next;
 }SNode;
+
 void stack_node_push( SNode**,  Min_heap_node* );
 Min_heap_node* pop( SNode** );
 int stack_node_is_empty( SNode* );
