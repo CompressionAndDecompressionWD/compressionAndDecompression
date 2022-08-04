@@ -351,3 +351,32 @@ void compress_heap_node_swap(Min_heap_node* a, Min_heap_node* b)
 //	fclose(log_file);
 //}
 
+FILE* compress_replace_chars_to_huffman_codes_in_file(FILE* sourse_file, FILE* compressed_file, Huffman_code* huffman_codes_dictionary){
+
+	Huffman_code code;
+	int ch = NULL,bits=0,current_length=0,index=0, temp = 0, count = sizeof(int);
+	current_length = sizeof(int);
+	do
+	{
+		ch = fgetc(sourse_file);
+		code = huffman_codes_dictionary[ch];
+		for (int i = 0; i < code.length/sizeof(int); )
+		{
+			bits = current_length - index;
+			int current_code = code.code[i] >> index;
+			temp = temp | current_code;
+			index += bits;
+			current_length -= bits;
+			if (current_length <= 0) {
+				i++;
+			}
+			if (index == 31) {
+				fwrite(temp, sizeof(int), 1, compressed_file);
+				temp = 0;
+				index = 0;
+			}			
+		}
+		temp = code.code[0] << (sizeof(int) - code.length);
+	} while (ch != EOF);
+
+}
