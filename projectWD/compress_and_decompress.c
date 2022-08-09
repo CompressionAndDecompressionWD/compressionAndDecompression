@@ -184,29 +184,43 @@ void compress_replace_chars_to_huffman_codes_in_file(FILE* sourse_file, FILE* co
 		current_code = huffman_codes_dictionary[ch];
 		for (i = 0; i < current_code->length / len_of_int; i++)
 		{
+			//insert into temp bits from the code as long as there is place
 			temp = temp | current_code->code[i] >> index_temp;
-			next_int = current_code->code[i] << len_of_int - index_temp;
+			//keep in next_int the bits that not entered to temp
+			if (len_of_int - index_temp < 32)
+				next_int = ((current_code->code[i]) << (len_of_int - index_temp));
+			//write temp to the file
 			fwrite((const void*)&temp, sizeof(int), 1, compressed_file);
 			temp = 0;
+			//fill temp with the bits that not entered last time for the next write to the file
 			temp = temp | next_int;
 		}
+		//len- num of bits for the last int of the current code
 		len = current_code->length % len_of_int;
 		if (len != 0) {
+			//if temp won't be full after add this number
 			if (index_temp + len < len_of_int) {
+				//add the code to temp and push to avoid extra zeros
 				temp = temp | current_code->code[i] << (len_of_int - len - index_temp);
+				//now temp has more len bits
 				index_temp += len;
 			}
+			//if temp will be exactly full after add this number
 			else if (index_temp + len == len_of_int) {
+				//add the code to temp - no need to push because it should start from the index_temp
 				temp = temp | current_code->code[i];
+				//write temp to the file
 				fwrite((const void*)&temp, sizeof(int), 1, compressed_file);
 				temp = 0;
 				index_temp = 0;
 			}
+			//if temp will be full after add this number and there were bits that had no place
 			else {
 				temp = temp | current_code->code[i] >> index_temp;
 				fwrite((const void*)&temp, sizeof(int), 1, compressed_file);
 				temp = 0;
-				temp = temp | current_code->code[i] << len_of_int - index_temp;
+				//add the bits that not entered to the file and push to avoid extra zeros
+				temp = temp | current_code->code[i] << len_of_int - len - index_temp;
 				index_temp = len + index_temp - len_of_int;
 			}
 		}
