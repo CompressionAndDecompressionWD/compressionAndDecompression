@@ -41,7 +41,7 @@ void stack_int_push(S_int*,int num);
 int stack_int_pop(S_int*);
 int stack_int_isEmpty(S_int*);
 //compression
-FILE* compress_main(char*);
+FILE* compress_main(FILE*);
 void compress_replace_chars_to_huffman_codes_in_file(FILE*, FILE*, Huffman_code**);
 int* compress_build_freq_array(FILE*);
 Min_heap* compress_build_huffman_tree(int*);

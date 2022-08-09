@@ -6,6 +6,9 @@
 #include "compress_and_decompress.h"
 void main()
 {
-	printf("hello project!!!!");
-	printf("save changes!!!!");
+	FILE* s = fopen("demo", "w");
+	fputs("adu", s);
+	fclose(s);
+	s = fopen("demo", "r");
+	compress_main(s);
 }

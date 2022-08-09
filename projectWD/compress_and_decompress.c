@@ -9,6 +9,7 @@
 //איך כותבים את השמירת היסטוריה הזאת??
 void stack_int_init(S_int* S)
 {
+	S = (S_int*)malloc(sizeof(S_int));
 	S->arr = (int*)malloc(sizeof(int));
 	S->size = 0;
 }
@@ -65,18 +66,19 @@ int stack_node_is_empty(SNode* top)
 {
 	return (top == NULL) ? 1 : 0;
 }
-FILE* compress_main(char* code_file)
+FILE* compress_main(FILE* sourse_file)
 {
-	FILE* sourse_file = fopen(code_file, "r");
+	//FILE* sourse_file = fopen(code_file, "r");
 	if (sourse_file == NULL) {
 		//to do ...
+		perror("demo");
 		exit(1);
 	}
 	int* freq_arr = compress_build_freq_array(sourse_file);
 	Min_heap* huffman_tree = compress_build_huffman_tree(freq_arr);
 	Huffman_code** huffman_dictionary_char_codes = compress_build_huffman_codes_dictionary(huffman_tree);
 	char* file_name = NULL;
-	_strdup(file_name, code_file);
+	_strdup(file_name, "demo");
 	strcat(file_name, ".bin");
 	FILE* compressed_file = fopen(file_name, "wb");
 	if (compressed_file == NULL)
@@ -366,6 +368,7 @@ Min_heap* compress_build_min_heap(int* freq_arr)
 }
 Min_heap* compress_init_min_heap(Min_heap* min_heap)
 {
+	min_heap = (Min_heap*)malloc(sizeof(Min_heap));
 	min_heap->size = 0;
 	min_heap->capacity = 255;
 	min_heap->arr = (Min_heap_node**)malloc(sizeof(Min_heap_node*));
