@@ -379,7 +379,7 @@ Min_heap* compress_build_min_heap(int* freq_arr)
 	{
 		if (freq_arr[i] != 0) {
 			min_heap->arr = (Min_heap_node**)realloc(min_heap->arr, sizeof(Min_heap_node*) * ++min_heap->size);
-			min_heap->arr[min_heap->size] = (Min_heap_node*)malloc(sizeof(Min_heap_node));
+			//min_heap->arr[min_heap->size] = (Min_heap_node*)malloc(sizeof(Min_heap_node));
 			min_heap->arr[min_heap->size] = *(compress_create_new_min_heap_node(freq_arr+i, (char)i));
 		}
 	}
