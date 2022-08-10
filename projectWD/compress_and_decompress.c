@@ -257,13 +257,13 @@ Min_heap* compress_build_huffman_tree(int* freq_arr)
 	}
 	return min_heap;
 }
-Min_heap_node* compress_create_new_min_heap_node(int freq, char c)
+Min_heap_node** compress_create_new_min_heap_node(int* freq, char c)
 {
 	Min_heap_node* node = NULL;
 	node = (Min_heap_node*)malloc(sizeof(Min_heap_node));
 	node->c = c;
-	node->freq = freq;
-	return node;
+	node->freq = *freq;
+	return &node;
 }
 int compress_heap_is_one_leaf(Min_heap* heap)
 {
@@ -379,8 +379,8 @@ Min_heap* compress_build_min_heap(int* freq_arr)
 	{
 		if (freq_arr[i] != 0) {
 			min_heap->arr = (Min_heap_node**)realloc(min_heap->arr, sizeof(Min_heap_node*) * ++min_heap->size);
-			min_heap->arr[min_heap->size] = (Min_heap_node*)malloc(sizeof(Min_heap_node));
-			min_heap->arr[min_heap->size] = compress_create_new_min_heap_node(freq_arr[i], (char)i);
+			//min_heap->arr[min_heap->size] = (Min_heap_node*)malloc(sizeof(Min_heap_node));
+			min_heap->arr[min_heap->size] = *(compress_create_new_min_heap_node(freq_arr+i, (char)i));
 		}
 	}
 	//build the heap
@@ -395,7 +395,7 @@ Min_heap* compress_init_min_heap(Min_heap* min_heap)
 	min_heap = (Min_heap*)malloc(sizeof(Min_heap));
 	min_heap->size = 0;
 	min_heap->capacity = 255;
-	min_heap->arr = (Min_heap_node**)malloc(sizeof(Min_heap_node*));
+	min_heap->arr = (Min_heap_node**)calloc(1,sizeof(Min_heap_node*));
 	return min_heap;
 }
 void compress_heap_node_swap(Min_heap_node* a, Min_heap_node* b)
