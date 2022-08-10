@@ -45,7 +45,7 @@ FILE* compress_main(FILE*);
 void compress_replace_chars_to_huffman_codes_in_file(FILE*, FILE*, Huffman_code**);
 int* compress_build_freq_array(FILE*);
 Min_heap* compress_build_huffman_tree(int*);
-Min_heap_node** compress_create_new_min_heap_node(int*, char);
+Min_heap_node* compress_create_new_min_heap_node(int*, char);
 int compress_heap_is_one_leaf(Min_heap*);
 void compress_min_heapify(Min_heap*);
 void compress_min_heap_insert(Min_heap*, Min_heap_node*);

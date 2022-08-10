@@ -23,8 +23,10 @@ void stack_int_push(S_int** Stack, int num)
 
 }
 int stack_int_pop(S_int* S) {
+	return S->arr[--S->size];
 }
 int stack_int_isEmpty(S_int* S) {
+	return S->size == 0;
 }
 void stack_node_push(SNode** top_ref, Min_heap_node* t)
 {
@@ -257,13 +259,13 @@ Min_heap* compress_build_huffman_tree(int* freq_arr)
 	}
 	return min_heap;
 }
-Min_heap_node** compress_create_new_min_heap_node(int* freq, char c)
+Min_heap_node* compress_create_new_min_heap_node(int* freq, char c)
 {
 	Min_heap_node* node = NULL;
 	node = (Min_heap_node*)malloc(sizeof(Min_heap_node));
 	node->c = c;
 	node->freq = *freq;
-	return &node;
+	return node;
 }
 int compress_heap_is_one_leaf(Min_heap* heap)
 {
@@ -274,6 +276,8 @@ void compress_min_heapify(Min_heap* h, int index)
 	int left_index = index * 2 + 1;
 	int right_index = index * 2 + 2;
 	int smallest = index;
+	if (left_index > h->size)
+		return;
 	if (left_index < h->size && h->arr[left_index]->freq < h->arr[index]->freq)
 		smallest = left_index;
 	if (right_index < h->size && h->arr[right_index]->freq < h->arr[smallest]->freq)
@@ -380,11 +384,11 @@ Min_heap* compress_build_min_heap(int* freq_arr)
 		if (freq_arr[i] != 0) {
 			min_heap->arr = (Min_heap_node**)realloc(min_heap->arr, sizeof(Min_heap_node*) * ++min_heap->size);
 			//min_heap->arr[min_heap->size] = (Min_heap_node*)malloc(sizeof(Min_heap_node));
-			min_heap->arr[min_heap->size] = *(compress_create_new_min_heap_node(freq_arr+i, (char)i));
+			min_heap->arr[min_heap->size-1] = compress_create_new_min_heap_node(freq_arr+i, (char)i);
 		}
 	}
 	//build the heap
-	for (int i = min_heap->size; i > min_heap->size / 2; i++)
+	for (int i = min_heap->size / 2; i >0; i--)
 	{
 		compress_min_heapify(min_heap, i);
 	}
