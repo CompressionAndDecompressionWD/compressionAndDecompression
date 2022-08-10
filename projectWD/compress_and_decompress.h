@@ -36,7 +36,7 @@ typedef struct huffman_code {
 	// 192/64->2+1->3 numbers to keep code of length 192
 	int length;
 }Huffman_code;
-void stack_int_init(S_int*);
+S_int* stack_int_init(S_int*);
 void stack_int_push(S_int*,int num);
 int stack_int_pop(S_int*);
 int stack_int_isEmpty(S_int*);
@@ -50,8 +50,8 @@ int compress_heap_is_one_leaf(Min_heap*);
 void compress_min_heapify(Min_heap*);
 void compress_min_heap_insert(Min_heap*, Min_heap_node*);
 Min_heap_node* compress_min_heap_extractmin(Min_heap*);
-int* compress_build_huffman_codes_dictionary(Min_heap*);
-int compress_build_code_from_stack(S_int*);
+Huffman_code** compress_build_huffman_codes_dictionary(Min_heap*);
+int* compress_build_code_from_stack(S_int*);
 Min_heap* compress_build_min_heap(int*);
 Min_heap* compress_init_min_heap(Min_heap*);
 void compress_heap_node_swap(Min_heap_node*, Min_heap_node*);

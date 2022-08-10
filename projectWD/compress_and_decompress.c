@@ -7,15 +7,16 @@
 #define LOG_FILE "history.log"
 #define CHAR_TO_TRUCK 'a'
 //איך כותבים את השמירת היסטוריה הזאת??
-void stack_int_init(S_int* S)
+S_int* stack_int_init(S_int* S)
 {
 	S = (S_int*)malloc(sizeof(S_int));
 	S->arr = (int*)malloc(sizeof(int));
 	S->size = 0;
+	return S;
 }
-void stack_int_push(S_int* S, int num)
+void stack_int_push(S_int** Stack, int num)
 {
-
+	S_int* S = *Stack;
 	S->size++;
 	S->arr = (int*)realloc(S->arr, sizeof(int) * S->size);
 	S->arr[S->size - 1] = num;
@@ -76,7 +77,7 @@ FILE* compress_main(FILE* sourse_file)
 	}
 	int* freq_arr = compress_build_freq_array(sourse_file);
 	Min_heap* huffman_tree = compress_build_huffman_tree(freq_arr);
-	Huffman_code** huffman_dictionary_char_codes = compress_build_huffman_codes_dictionary(huffman_tree);
+	Huffman_code** huffman_dictionary_char_codes =  compress_build_huffman_codes_dictionary(huffman_tree);
 	char* file_name = NULL;
 	_strdup(file_name, "demo");
 	strcat(file_name, ".bin");
@@ -234,7 +235,7 @@ int* compress_build_freq_array(FILE* code_file)
 {
 	int* arr_freq = NULL;
 	arr_freq = (int*)calloc(255, sizeof(int));
-	int ch = fgetc(code_file);
+	int ch=0;
 	while (ch != EOF)
 	{
 		ch = fgetc(code_file);
@@ -303,44 +304,51 @@ Min_heap_node* compress_min_heap_extractmin(Min_heap* heap)
 	heap->size--;
 	return node;
 }
-int compress_build_code_from_stack(S_int* S)
+int* compress_build_code_from_stack(S_int* S)
 {
-	int code = 0, i = S->size-1,mul=1;
+	int* code=NULL, i = S->size-1,mul=1,count_digits=0,j=0;
+	code = (int*)calloc(1,sizeof(int));
 	while (i >=0)
 	{
-		code += S->arr[i] * mul;
-		mul *= 10;
+		code[j] += S->arr[i] * mul;
+		mul *= 2;
 		i--;
+		count_digits++;
+		if (count_digits == 32) {
+			j++;
+			code = (int*)realloc(code, sizeof(int) * j);
+			code[j] = 0;
+			count_digits = 0;
+		}
 	}
 	return code;
 }
 //?????????
-int* compress_build_huffman_codes_dictionary(Min_heap* root)
+Huffman_code** compress_build_huffman_codes_dictionary(Min_heap* root)
 {
-	Huffman_code* huffman_codes = NULL;
+	Huffman_code** huffman_codes = NULL;
 	int size = 0;
-	huffman_codes = (int*)malloc(sizeof(int));
+	huffman_codes = (Huffman_code**)malloc(sizeof(Huffman_code*)*255);
 	//if the tree has 1 node
-	huffman_codes[0].code= 0;
-	huffman_codes[0].length= 1;
+	huffman_codes[0] = (Huffman_code*)malloc(sizeof(Huffman_code));
+	huffman_codes[0]->code= 0;
+	huffman_codes[0]->length= 1;
 	Min_heap_node* current = root->arr[0];
 	SNode* node_stack = NULL;
 	S_int* code_stack = NULL;
-	stack_int_init(code_stack);
+	code_stack=stack_int_init(code_stack);
 	int done = 0;
 	while (!done)
 	{
-		
 		if (current != NULL)
 		{
-			stack_node_push(&node_stack, current);
-			stack_int_push(code_stack, 0);
+			stack_node_push(&node_stack,current);
+			stack_int_push(&code_stack, 0);
 			if (!(current->left || current->right)) {
 				// output the code stack to huffman array
-				size++;
-				huffman_codes = (int*)realloc(huffman_codes, sizeof(int) * size);
-				huffman_codes[size - 1].code = compress_build_code_from_stack(code_stack);
-				huffman_codes[size - 1].length = code_stack->size;
+				huffman_codes[current->c] = (Huffman_code*)malloc(sizeof(Huffman_code));
+				huffman_codes[current->c]->code = compress_build_code_from_stack(code_stack);
+				huffman_codes[current->c]->length = code_stack->size;
 			}
 			current = current->left;
 		}
@@ -359,18 +367,20 @@ int* compress_build_huffman_codes_dictionary(Min_heap* root)
 		}
 	}
 	
-			
+	return huffman_codes;
 }
 Min_heap* compress_build_min_heap(int* freq_arr)
 {
 	Min_heap* min_heap = NULL;
 	min_heap = compress_init_min_heap(min_heap);
 	//create node for each charcter+freq
-	for (int i = 0; i < sizeof(freq_arr) / sizeof(int); i++)
+	
+	for (int i = 0; i <255; i++)
 	{
 		if (freq_arr[i] != 0) {
-			min_heap->arr = (Min_heap_node**)realloc(min_heap->arr, sizeof(Min_heap_node*) * min_heap->size);
-			min_heap->arr[min_heap->size++] = compress_create_new_min_heap_node(freq_arr[i], (char)i);
+			min_heap->arr = (Min_heap_node**)realloc(min_heap->arr, sizeof(Min_heap_node*) * ++min_heap->size);
+			min_heap->arr[min_heap->size] = (Min_heap_node*)malloc(sizeof(Min_heap_node));
+			min_heap->arr[min_heap->size] = compress_create_new_min_heap_node(freq_arr[i], (char)i);
 		}
 	}
 	//build the heap
