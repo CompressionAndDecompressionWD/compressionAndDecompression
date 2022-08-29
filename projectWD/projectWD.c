@@ -7,7 +7,7 @@
 void main()
 {
 	FILE* s = fopen("demo", "w");
-	fputs("abcabc", s);
+	fputs("abd", s);
 	fclose(s);
 	s = fopen("demo", "r");
 	compress_main(s);

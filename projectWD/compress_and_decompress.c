@@ -6,6 +6,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #define LOG_FILE "history.log"
 #define CHAR_TO_TRUCK 'a'
+#define NULL_PTR 0xcdcdcdcdcdcdcdcd
 //איך כותבים את השמירת היסטוריה הזאת??
 S_int* stack_int_init(S_int* S)
 {
@@ -23,8 +24,14 @@ void stack_int_push(S_int** Stack, int num)
 
 }
 int stack_int_pop(S_int* S) {
+	return S->arr[--S->size];
 }
 int stack_int_isEmpty(S_int* S) {
+	return S->size == 0;
+}
+stack_int_clear(S_int* S)
+{
+	S->size = 0;
 }
 void stack_node_push(SNode** top_ref, Min_heap_node* t)
 {
@@ -77,9 +84,13 @@ FILE* compress_main(FILE* sourse_file)
 	}
 	int* freq_arr = compress_build_freq_array(sourse_file);
 	Min_heap* huffman_tree = compress_build_huffman_tree(freq_arr);
-	Huffman_code** huffman_dictionary_char_codes =  compress_build_huffman_codes_dictionary(huffman_tree);
+	/*print the tree!!!*/
+	printInorder(huffman_tree->arr[0]);
+	printf("\n");
+	Huffman_code** huffman_dictionary_char_codes = compress_build_huffman_codes_dictionary(huffman_tree);
 	char* file_name = NULL;
-	_strdup(file_name, "demo");
+	file_name = _strdup("demo");
+
 	strcat(file_name, ".bin");
 	FILE* compressed_file = fopen(file_name, "wb");
 	if (compressed_file == NULL)
@@ -177,8 +188,11 @@ FILE* compress_main(FILE* sourse_file)
 //}
 void compress_replace_chars_to_huffman_codes_in_file(FILE* sourse_file, FILE* compressed_file, Huffman_code** huffman_codes_dictionary)
 {
+	sourse_file = fopen("demo", "r");
+	if (sourse_file == NULL)
+		exit(1);
 	Huffman_code* current_code;
-	unsigned int ch, i, temp = 0, index_temp = 0, next_int = 0, len = 0, len_of_int = sizeof(int) * 8;
+	unsigned int ch, i=0, temp = 0, index_temp = 0, next_int = 0, len = 0, len_of_int = sizeof(int) * 8;
 	ch = fgetc(sourse_file);
 	while (ch != EOF)
 	{
@@ -229,13 +243,27 @@ void compress_replace_chars_to_huffman_codes_in_file(FILE* sourse_file, FILE* co
 	}
 	if (temp != 0)
 		fwrite((const void*)&temp, sizeof(int), 1, compressed_file);
+	unsigned int c = 0,m=0;
+	unsigned int maxPow = 1 << (4 * 8 - 1);
+	//ch = fgetc(bin_file);
+	fclose(compressed_file);
+	compressed_file = fopen("demo.bin", "rb");
+	while (c != EOF)
+	{
+		fread(&c, sizeof(int), 1, compressed_file);
+		for (; m < 32; ++m) {
+			// print last bit and shift left.
+			printf("%u ", c & maxPow ? 1 : 0);
+			c = c << 1;
+		}
+		//ch = fgetc(bin_file);
+	}
 }
-
 int* compress_build_freq_array(FILE* code_file)
 {
 	int* arr_freq = NULL;
 	arr_freq = (int*)calloc(255, sizeof(int));
-	int ch=0;
+	int ch = 0;
 	while (ch != EOF)
 	{
 		ch = fgetc(code_file);
@@ -257,13 +285,15 @@ Min_heap* compress_build_huffman_tree(int* freq_arr)
 	}
 	return min_heap;
 }
-Min_heap_node** compress_create_new_min_heap_node(int* freq, char c)
+Min_heap_node* compress_create_new_min_heap_node(int freq, char c)
 {
 	Min_heap_node* node = NULL;
 	node = (Min_heap_node*)malloc(sizeof(Min_heap_node));
 	node->c = c;
-	node->freq = *freq;
-	return &node;
+	if (freq == 5)
+		c = c;;
+	node->freq = freq;
+	return node;
 }
 int compress_heap_is_one_leaf(Min_heap* heap)
 {
@@ -274,6 +304,8 @@ void compress_min_heapify(Min_heap* h, int index)
 	int left_index = index * 2 + 1;
 	int right_index = index * 2 + 2;
 	int smallest = index;
+	if (left_index > h->size)
+		return;
 	if (left_index < h->size && h->arr[left_index]->freq < h->arr[index]->freq)
 		smallest = left_index;
 	if (right_index < h->size && h->arr[right_index]->freq < h->arr[smallest]->freq)
@@ -299,16 +331,22 @@ Min_heap_node* compress_min_heap_extractmin(Min_heap* heap)
 {
 	Min_heap_node* node = heap->arr[0];
 	heap->arr[0] = heap->arr[heap->size - 1];
-	free(heap->arr[heap->size - 1]);
+	//free(heap->arr[heap->size - 1]);
 	compress_min_heapify(heap, 0);
 	heap->size--;
 	return node;
 }
 int* compress_build_code_from_stack(S_int* S)
 {
-	int* code=NULL, i = S->size-1,mul=1,count_digits=0,j=0;
-	code = (int*)calloc(1,sizeof(int));
-	while (i >=0)
+	/*print for test the stack*/
+	printf("print stack\n");
+	for (size_t i = 0; i < S->size; i++)
+	{
+		printf("%d ,", S->arr[i]);
+	}printf("\n");
+	int* code = NULL, i = S->size - 1, mul = 1, count_digits = 0, j = 0;
+	code = (int*)calloc(1, sizeof(int));
+	while (i >= 0)
 	{
 		code[j] += S->arr[i] * mul;
 		mul *= 2;
@@ -321,36 +359,39 @@ int* compress_build_code_from_stack(S_int* S)
 			count_digits = 0;
 		}
 	}
+	printf("code... %d\n", *code);
 	return code;
 }
-//?????????
 Huffman_code** compress_build_huffman_codes_dictionary(Min_heap* root)
 {
 	Huffman_code** huffman_codes = NULL;
 	int size = 0;
-	huffman_codes = (Huffman_code**)malloc(sizeof(Huffman_code*)*255);
+	huffman_codes = (Huffman_code**)malloc(sizeof(Huffman_code*) * 255);
 	//if the tree has 1 node
 	huffman_codes[0] = (Huffman_code*)malloc(sizeof(Huffman_code));
-	huffman_codes[0]->code= 0;
-	huffman_codes[0]->length= 1;
+	huffman_codes[0]->code = 0;
+	huffman_codes[0]->length = 1;
 	Min_heap_node* current = root->arr[0];
 	SNode* node_stack = NULL;
 	S_int* code_stack = NULL;
-	code_stack=stack_int_init(code_stack);
+	code_stack = stack_int_init(code_stack);
 	int done = 0;
 	while (!done)
 	{
-		if (current != NULL)
+		if (current != NULL_PTR)
 		{
-			stack_node_push(&node_stack,current);
-			stack_int_push(&code_stack, 0);
-			if (!(current->left || current->right)) {
+			stack_node_push(&node_stack, current);
+			if (current->left == NULL_PTR && current->right == NULL_PTR) {
 				// output the code stack to huffman array
 				huffman_codes[current->c] = (Huffman_code*)malloc(sizeof(Huffman_code));
 				huffman_codes[current->c]->code = compress_build_code_from_stack(code_stack);
 				huffman_codes[current->c]->length = code_stack->size;
+				/*print for test*/
+				printf("print code for character %c : code int: %d, length: %d\n", current->c, huffman_codes[current->c]->code[0], huffman_codes[current->c]->length);
 			}
 			current = current->left;
+			if (current != NULL_PTR)
+				stack_int_push(&code_stack, 0);
 		}
 		else
 		{
@@ -359,6 +400,7 @@ Huffman_code** compress_build_huffman_codes_dictionary(Min_heap* root)
 				current = pop(&node_stack);
 				stack_int_pop(code_stack);
 				current = current->right;
+				stack_int_push(&code_stack, 1);
 			}
 			else
 			{
@@ -366,7 +408,7 @@ Huffman_code** compress_build_huffman_codes_dictionary(Min_heap* root)
 			}
 		}
 	}
-	
+
 	return huffman_codes;
 }
 Min_heap* compress_build_min_heap(int* freq_arr)
@@ -374,17 +416,19 @@ Min_heap* compress_build_min_heap(int* freq_arr)
 	Min_heap* min_heap = NULL;
 	min_heap = compress_init_min_heap(min_heap);
 	//create node for each charcter+freq
-	
-	for (int i = 0; i <255; i++)
+
+	for (int i = 0; i < 255; i++)
 	{
 		if (freq_arr[i] != 0) {
 			min_heap->arr = (Min_heap_node**)realloc(min_heap->arr, sizeof(Min_heap_node*) * ++min_heap->size);
 			//min_heap->arr[min_heap->size] = (Min_heap_node*)malloc(sizeof(Min_heap_node));
-			min_heap->arr[min_heap->size] = *(compress_create_new_min_heap_node(freq_arr+i, (char)i));
+			min_heap->arr[min_heap->size - 1] = compress_create_new_min_heap_node(freq_arr[i], (char)i);
+			if (min_heap->arr[min_heap->size - 1]->freq != 1)
+				i = i;
 		}
 	}
 	//build the heap
-	for (int i = min_heap->size; i > min_heap->size / 2; i++)
+	for (int i = min_heap->size / 2; i > 0; i--)
 	{
 		compress_min_heapify(min_heap, i);
 	}
@@ -395,7 +439,7 @@ Min_heap* compress_init_min_heap(Min_heap* min_heap)
 	min_heap = (Min_heap*)malloc(sizeof(Min_heap));
 	min_heap->size = 0;
 	min_heap->capacity = 255;
-	min_heap->arr = (Min_heap_node**)calloc(1,sizeof(Min_heap_node*));
+	min_heap->arr = (Min_heap_node**)calloc(1, sizeof(Min_heap_node*));
 	return min_heap;
 }
 void compress_heap_node_swap(Min_heap_node* a, Min_heap_node* b)
@@ -422,3 +466,18 @@ void compress_heap_node_swap(Min_heap_node* a, Min_heap_node* b)
 //	fputs( history, log_file);
 //	fclose(log_file);
 //}
+/* Given a binary tree, print its nodes in inorder*/
+void printInorder(Min_heap_node* node)
+{
+	if (node == NULL_PTR)
+		return;
+
+	/* first recur on left child */
+	printInorder(node->left);
+
+	/* then print the data of node */
+	printf("{%d , %c} ", node->freq, node->c);
+
+	/* now recur on right child */
+	printInorder(node->right);
+}
