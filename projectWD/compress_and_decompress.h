@@ -56,6 +56,7 @@ int* compress_build_code_from_stack(S_int*);
 Min_heap* compress_build_min_heap(int*);
 Min_heap* compress_init_min_heap(Min_heap*);
 void compress_heap_node_swap(Min_heap_node*, Min_heap_node*);
+void compress_codes_to_file(FILE*, Huffman_code**);
 void printInorder(Min_heap_node* node);
 //void keep_history(char* function,char* data);
 #endif

@@ -21,9 +21,15 @@
     <ClCompile Include="compress_and_decompress.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="decompression.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="compress_and_decompress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="decompression.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

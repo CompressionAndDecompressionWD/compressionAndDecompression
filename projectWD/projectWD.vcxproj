@@ -128,10 +128,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="compress_and_decompress.c" />
+    <ClCompile Include="decompression.c" />
     <ClCompile Include="projectWD.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="compress_and_decompress.h" />
+    <ClInclude Include="decompression.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

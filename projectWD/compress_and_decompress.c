@@ -95,7 +95,7 @@ FILE* compress_main(FILE* sourse_file)
 	FILE* compressed_file = fopen(file_name, "wb");
 	if (compressed_file == NULL)
 		exit(1);
-	//todo...
+	compress_codes_to_file(compressed_file, huffman_dictionary_char_codes);
 	compress_replace_chars_to_huffman_codes_in_file(sourse_file, compressed_file, huffman_dictionary_char_codes);
 	return compressed_file;
 }
@@ -447,6 +447,10 @@ void compress_heap_node_swap(Min_heap_node* a, Min_heap_node* b)
 	Min_heap_node temp = *a;
 	*a = *b;
 	*b = temp;
+}
+void compress_codes_to_file(FILE* compressed_file, Huffman_code** huffman_codes_dictionary)
+{
+
 }
 //void keep_history(char* function, char* data)
 //{
